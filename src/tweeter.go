@@ -23,12 +23,23 @@ func main() {
 	})
 
 	shell.AddCmd(&ishell.Cmd{
-		Name: "ShowTweet",
+		Name: "showTweet",
 		Help: "Shows a tweet",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
 			tweet := service.GetTweet()
 			c.Println(tweet)
+			return
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "cleanTweet",
+		Help: "Cleans tweeter",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("Cleans your tweets")
+			service.CleanTweet()
 			return
 		},
 	})
