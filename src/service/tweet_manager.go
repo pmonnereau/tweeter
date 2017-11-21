@@ -11,3 +11,8 @@ func GetTweet() string {
 func PublishTweet(tw string) {
 	tweet = tw
 }
+
+//CleanTweet ...
+func CleanTweet() {
+	tweet = ""
+}
