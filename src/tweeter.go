@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/abiosoft/ishell"
+	"github.com/tweeter/src/domain"
 	"github.com/tweeter/src/service"
 )
 
@@ -14,9 +15,12 @@ func main() {
 		Help: "Publishes a tweet",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
-			c.Print("Write your tweet")
-			tweet := c.ReadLine()
-			service.PublishTweet(tweet)
+			c.Print("Ingrese su usuario")
+			user := c.ReadLine()
+			c.Print("Ingrese su tweet")
+			txt := c.ReadLine()
+			Tweet := domain.NewTweet(user, txt)
+			service.PublishTweet(Tweet)
 			c.Print("Tweet sent \n")
 			return
 		},
