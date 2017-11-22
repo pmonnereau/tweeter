@@ -27,6 +27,16 @@ func main() {
 			} else {
 				c.Print("Tweet sent \n")
 			}
+			if err != nil && err.Error() == "text is required" {
+				c.Print("Text is required, try again")
+			} else {
+				c.Print("Tweet sent \n")
+			}
+			if err != nil && err.Error() == "text and user are required" {
+				c.Print("text and user are required, try again")
+			} else {
+				c.Print("Tweet sent \n")
+			}
 
 			return
 		},
