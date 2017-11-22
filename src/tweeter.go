@@ -23,7 +23,7 @@ func main() {
 			var err error
 			err = service.PublishTweet(Tweet)
 			if err != nil && err.Error() == "user is required" {
-				c.Print("User is required")
+				c.Print("User is required, try again")
 			} else {
 				c.Print("Tweet sent \n")
 			}

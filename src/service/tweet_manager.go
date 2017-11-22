@@ -18,9 +18,7 @@ func PublishTweet(tw *domain.Tweet) error {
 	} else {
 		tweet = tw
 	}
-
 	return err
-
 }
 
 //CleanTweet ...
