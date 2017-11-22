@@ -1,6 +1,7 @@
 package service
 
 import "github.com/tweeter/src/domain"
+import "fmt"
 
 var tweet *domain.Tweet
 
@@ -10,11 +11,21 @@ func GetTweet() *domain.Tweet {
 }
 
 //PublishTweet ...
-func PublishTweet(tw *domain.Tweet) {
-	tweet = tw
+func PublishTweet(tw *domain.Tweet) error {
+	var err error
+	if tw.User == "" {
+		err = fmt.Errorf("user is required")
+	} else {
+		tweet = tw
+	}
+
+	return err
+
 }
 
 //CleanTweet ...
 func CleanTweet() {
 	tweet.Text = ""
+	tweet.User = ""
+	tweet.Date = nil
 }

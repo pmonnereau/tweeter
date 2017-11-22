@@ -15,13 +15,19 @@ func main() {
 		Help: "Publishes a tweet",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
-			c.Print("Ingrese su usuario")
+			c.Print("Ingrese su usuario: ")
 			user := c.ReadLine()
-			c.Print("Ingrese su tweet")
+			c.Print("Ingrese su tweet: ")
 			txt := c.ReadLine()
 			Tweet := domain.NewTweet(user, txt)
-			service.PublishTweet(Tweet)
-			c.Print("Tweet sent \n")
+			var err error
+			err = service.PublishTweet(Tweet)
+			if err != nil && err.Error() == "user is required" {
+				c.Print("User is required")
+			} else {
+				c.Print("Tweet sent \n")
+			}
+
 			return
 		},
 	})
@@ -32,7 +38,7 @@ func main() {
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
 			tweet := service.GetTweet()
-			c.Println(tweet)
+			c.Println(tweet.User + " " + tweet.Text)
 			return
 		},
 	})
