@@ -24,16 +24,12 @@ func main() {
 			err = service.PublishTweet(Tweet)
 			if err != nil && err.Error() == "user is required" {
 				c.Print("User is required, try again")
-			} else {
-				c.Print("Tweet sent \n")
-			}
-			if err != nil && err.Error() == "text is required" {
+			} else if err != nil && err.Error() == "text is required" {
 				c.Print("Text is required, try again")
-			} else {
-				c.Print("Tweet sent \n")
-			}
-			if err != nil && err.Error() == "text and user are required" {
+			} else if err != nil && err.Error() == "text and user are required" {
 				c.Print("text and user are required, try again")
+			} else if err != nil && err.Error() == "tweet must be less than 140 chars" {
+				c.Print("tweet must be less than 140 chars")
 			} else {
 				c.Print("Tweet sent \n")
 			}
@@ -47,8 +43,11 @@ func main() {
 		Help: "Shows a tweet",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
-			tweet := service.GetTweet()
-			c.Println(tweet.User + " " + tweet.Text)
+			tweets := service.GetTweets()
+			for index := 0; index < len(tweets); index++ {
+				c.Println(tweets[index].User + " " + tweets[index].Text)
+			}
+
 			return
 		},
 	})
@@ -59,7 +58,7 @@ func main() {
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
 			c.Print("Cleans your tweets")
-			service.CleanTweet()
+			service.CleanLastTweet()
 			return
 		},
 	})

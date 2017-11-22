@@ -6,6 +6,7 @@ import (
 
 //Tweet ... struct
 type Tweet struct {
+	ID   int
 	User string
 	Text string
 	Date *time.Time
@@ -14,8 +15,9 @@ type Tweet struct {
 //NewTweet ...
 func NewTweet(user string, text string) *Tweet {
 	date := time.Now()
+	var ID int
 	tw := Tweet{
-		user, text, &date,
+		ID, user, text, &date,
 	}
 	return &tw
 }
