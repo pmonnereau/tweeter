@@ -15,13 +15,14 @@ func main() {
 		Help: "Publishes a tweet",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
-			c.Print("Ingrese su usuario: ")
+			c.Print("Enter your username: ")
 			user := c.ReadLine()
-			c.Print("Ingrese su tweet: ")
+			c.Print("Write your tweet: ")
 			txt := c.ReadLine()
 			Tweet := domain.NewTweet(user, txt)
 			var err error
-			err = service.PublishTweet(Tweet)
+			var idNew int
+			idNew, err = service.PublishTweet(Tweet)
 			if err != nil && err.Error() == "user is required" {
 				c.Print("User is required, try again")
 			} else if err != nil && err.Error() == "text is required" {
@@ -31,7 +32,7 @@ func main() {
 			} else if err != nil && err.Error() == "tweet must be less than 140 chars" {
 				c.Print("tweet must be less than 140 chars")
 			} else {
-				c.Print("Tweet sent \n")
+				c.Print("Tweet sent with id ", idNew)
 			}
 
 			return
@@ -40,7 +41,7 @@ func main() {
 
 	shell.AddCmd(&ishell.Cmd{
 		Name: "showTweet",
-		Help: "Shows a tweet",
+		Help: "Shows all tweets",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
 			tweets := service.GetTweets()
@@ -53,12 +54,25 @@ func main() {
 	})
 
 	shell.AddCmd(&ishell.Cmd{
-		Name: "cleanTweet",
-		Help: "Cleans tweeter",
+		Name: "cleanLastTweet",
+		Help: "Cleans last tweet",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
-			c.Print("Cleans your tweets")
+			c.Print("Cleans your last tweet")
 			service.CleanLastTweet()
+			return
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "showTweetsByUser",
+		Help: "Count tweets by user",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("Enter your username: ")
+			user := c.ReadLine()
+			c.Print("The count of user's tweet is ", service.CountTweetsByUser(user))
+
 			return
 		},
 	})
