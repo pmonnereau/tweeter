@@ -260,3 +260,36 @@ func isValidTweet(t *testing.T, tweet *domain.Tweet, id int, user, text string) 
 	return true
 
 }
+
+func TestTrendingTopics(t *testing.T) {
+	// Initialization
+	tweetManager := service.NewTweetManager()
+
+	var tweet, secondTweet, thirdTweet *domain.Tweet
+
+	user := "rodri"
+	anotherUser := "pri"
+	text := "hola soy rodri"
+	secondText := "hola soy pro"
+
+	tweet = domain.NewTweet(user, text)
+	secondTweet = domain.NewTweet(user, secondText)
+	thirdTweet = domain.NewTweet(anotherUser, text)
+
+	tweetManager.PublishTweet(tweet)
+	tweetManager.PublishTweet(secondTweet)
+	tweetManager.PublishTweet(thirdTweet)
+
+	trendingTopics := tweetManager.GetTrendingTopic()
+	println(trendingTopics)
+	if trendingTopics != "hola" {
+		t.Error("Expected hola")
+		return
+	}
+
+	if trendingTopics != "soy" {
+		t.Error("Expected hola soy")
+		return
+	}
+
+}

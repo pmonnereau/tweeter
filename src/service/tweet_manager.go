@@ -2,6 +2,7 @@ package service
 
 import "github.com/tweeter/src/domain"
 import "fmt"
+import "strings"
 
 //TweetManager ...
 type TweetManager struct {
@@ -99,4 +100,26 @@ func (t *TweetManager) GetTimeline(user string) []*domain.Tweet {
 	misTweets := t.TweetsByUser[user]
 	listaTweets = append(listaTweets, misTweets...)
 	return listaTweets
+}
+
+//GetTrendingTopic ...
+func (t *TweetManager) GetTrendingTopic() string {
+	listaTrending := make(map[string]int)
+	for i := 0; i < len(t.Tweets); i++ {
+		listaPalabras := strings.Fields(t.Tweets[i].Text)
+		for j := 0; j < len(listaPalabras); j++ {
+			elem := listaTrending[listaPalabras[j]]
+			listaTrending[listaPalabras[j]] = elem + 1
+		}
+	}
+	maxRepeticion := 0
+	palabraMaxima := ""
+	for i := range listaTrending {
+		value := listaTrending[i]
+		if listaTrending[i] > maxRepeticion {
+			maxRepeticion = value
+			palabraMaxima = i
+		}
+	}
+	return palabraMaxima
 }
