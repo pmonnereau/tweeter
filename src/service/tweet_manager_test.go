@@ -281,15 +281,139 @@ func TestTrendingTopics(t *testing.T) {
 	tweetManager.PublishTweet(thirdTweet)
 
 	trendingTopics := tweetManager.GetTrendingTopic()
-	println(trendingTopics)
-	if trendingTopics != "hola" {
-		t.Error("Expected hola")
+	println(trendingTopics[0])
+	println(trendingTopics[1])
+	if trendingTopics[0] != "hola" && trendingTopics[0] != "soy" {
+		t.Error("Expected hola soy")
 		return
 	}
 
-	if trendingTopics != "soy" {
+	if trendingTopics[1] != "hola" && trendingTopics[1] != "soy" {
 		t.Error("Expected hola soy")
 		return
+	}
+}
+
+func TestSendDirectMessage(t *testing.T) {
+	// Initialization
+	tweetManager := service.NewTweetManager()
+
+	var firstMes, secondMes, thirdMes *domain.DirectMessage
+
+	user := "rodri"
+	anotherUser := "pri"
+	text := "hola soy rodri"
+	text3 := "hola soy pro"
+	text2 := "holissss"
+
+	firstMes = tweetManager.SendDirectMessage(user, anotherUser, text)
+	secondMes = tweetManager.SendDirectMessage(user, anotherUser, text2)
+	thirdMes = tweetManager.SendDirectMessage(anotherUser, user, text3)
+
+	if tweetManager.DirectMessages[0].ID != firstMes.ID {
+		t.Error("No es el mensaje directo")
+	}
+	if tweetManager.DirectMessages[1].ID != secondMes.ID {
+		t.Error("No es el mensaje directo")
+	}
+
+	if tweetManager.DirectMessages[2].ID != thirdMes.ID {
+		t.Error("No es el mensaje directo")
+	}
+}
+
+func TestGetAllDirectMessagesByUser(t *testing.T) {
+	tweetManager := service.NewTweetManager()
+
+	var firstMes, secondMes *domain.DirectMessage
+
+	user := "rodri"
+	anotherUser := "pri"
+	text := "hola soy rodri"
+	text3 := "hola soy pro"
+	text2 := "holissss"
+
+	firstMes = tweetManager.SendDirectMessage(user, anotherUser, text)
+	secondMes = tweetManager.SendDirectMessage(user, anotherUser, text2)
+	_ = tweetManager.SendDirectMessage(anotherUser, user, text3)
+
+	dms := tweetManager.GetAllDirectMessages("pri")
+	if dms[0].ID != firstMes.ID {
+		t.Error("No es el mensaje directo")
+	}
+	if dms[1].ID != secondMes.ID {
+		t.Error("No es el mensaje directo")
+	}
+
+}
+
+func TestGetUnreadedMessagesByUser(t *testing.T) {
+	tweetManager := service.NewTweetManager()
+
+	var firstMes, secondMes *domain.DirectMessage
+
+	user := "rodri"
+	anotherUser := "pri"
+	text := "hola soy rodri"
+	text3 := "hola soy pro"
+	text2 := "holissss"
+
+	firstMes = tweetManager.SendDirectMessage(user, anotherUser, text)
+	secondMes = tweetManager.SendDirectMessage(user, anotherUser, text2)
+	thirdMes := tweetManager.SendDirectMessage(anotherUser, user, text3)
+
+	dms := tweetManager.GetUnreadedDirectMessages("pri")
+	if dms[0].ID != firstMes.ID {
+		t.Error("No es el mensaje directo")
+	}
+	if dms[1].ID != secondMes.ID {
+		t.Error("No es el mensaje directo")
+	}
+
+	_ = tweetManager.ReadDirectMessage(firstMes)
+	_ = tweetManager.ReadDirectMessage(secondMes)
+	_ = tweetManager.ReadDirectMessage(thirdMes)
+
+	dms = tweetManager.GetUnreadedDirectMessages("pri")
+	dms2 := tweetManager.GetUnreadedDirectMessages("rodri")
+	if len(dms) != 0 {
+		t.Error("Hay mensajes sin leer y no deberia")
+	}
+
+	if len(dms2) != 0 {
+		t.Error("Hay mensajes sin leer y no deberia")
+	}
+
+}
+func TestReTwitear(t *testing.T) {
+	// Initialization
+	tweetManager := service.NewTweetManager()
+
+	var tweet, secondTweet, thirdTweet *domain.Tweet
+
+	user := "rodri"
+	anotherUser := "pri"
+	text := "hola soy rodri"
+	secondText := "hola soy pro"
+
+	tweet = domain.NewTweet(user, text)
+	secondTweet = domain.NewTweet(user, secondText)
+	thirdTweet = domain.NewTweet(anotherUser, text)
+
+	tweetManager.PublishTweet(tweet)
+	tweetManager.PublishTweet(secondTweet)
+	tweetManager.PublishTweet(thirdTweet)
+
+	tweetManager.Retweet("pri", secondTweet)
+
+	tweetsByUser := tweetManager.GetTweetsByUser("pri")
+
+	println(tweetsByUser[len(tweetsByUser)-1].ID)
+	println(tweetsByUser[len(tweetsByUser)-1].Text)
+	println(secondTweet.ID)
+	println(secondTweet.Text)
+	if tweetsByUser[len(tweetsByUser)-1].ID != secondTweet.ID {
+		t.Error("Hay mensajes sin leer y no deberia")
 	}
 
 }

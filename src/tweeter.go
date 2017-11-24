@@ -22,7 +22,7 @@ func main() {
 			Tweet := domain.NewTweet(user, txt)
 			var err error
 			var idNew int
-			idNew, err = service.PublishTweet(Tweet)
+			idNew, _ = service.TweetManager.PublishTweet(Tweet)
 			if err != nil && err.Error() == "user is required" {
 				c.Print("User is required, try again")
 			} else if err != nil && err.Error() == "text is required" {
@@ -76,6 +76,5 @@ func main() {
 			return
 		},
 	})
-
 	shell.Run()
 }
