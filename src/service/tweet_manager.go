@@ -11,7 +11,7 @@ import (
 type TweetManager struct {
 	TweetsByUser   map[string][]domain.Tweet
 	Tweets         []domain.Tweet
-	DirectMessages []domain.DirectMessage
+	DirectMessages []*domain.DirectMessage
 	UserFollows    map[string][]string
 	FavsByUser     map[string][]domain.Tweet
 }
@@ -22,7 +22,7 @@ func NewTweetManager() *TweetManager {
 	TweetsByUser := make(map[string][]domain.Tweet)
 	FavsByUser := make(map[string][]domain.Tweet)
 	UserFollows := make(map[string][]string)
-	DirectMessages := make([]domain.DirectMessage, 0)
+	DirectMessages := make([]*domain.DirectMessage, 0)
 	tweetManager := TweetManager{
 		TweetsByUser, Tweets, DirectMessages, UserFollows, FavsByUser,
 	}
@@ -32,22 +32,22 @@ func NewTweetManager() *TweetManager {
 //PublishTweet ...
 func (t *TweetManager) PublishTweet(tw domain.Tweet) (int, error) {
 	var err error
-	if tw.User == "" && tw.Text == "" {
+	if tw.GetUser() == "" && tw.GetText() == "" {
 		err = fmt.Errorf("text and user are required")
-	} else if tw.User == "" {
+	} else if tw.GetUser() == "" {
 		err = fmt.Errorf("user is required")
-	} else if tw.Text == "" {
+	} else if tw.GetText() == "" {
 		err = fmt.Errorf("text is required")
-	} else if len(tw.Text) > 140 {
+	} else if len(tw.GetText()) > 140 {
 		err = fmt.Errorf("text exceeds 140 characters")
 	} else {
-		tw.ID = len(t.Tweets)
+		tw.SetId(len(t.Tweets))
 		t.Tweets = append(t.Tweets, tw)
-		elem, _ := t.TweetsByUser[tw.User]
+		elem, _ := t.TweetsByUser[tw.GetUser()]
 		elem = append(elem, tw)
-		t.TweetsByUser[tw.User] = elem
+		t.TweetsByUser[tw.GetUser()] = elem
 	}
-	return tw.ID, err
+	return tw.GetId(), err
 }
 
 //CleanLastTweet ...
@@ -96,6 +96,12 @@ func (t *TweetManager) Follow(user string, userFollow string) {
 	t.UserFollows[user] = append(elem, userFollow)
 }
 
+//Follow ...
+func (t *TweetManager) MyFollows(user string) []string {
+	elem := t.UserFollows[user]
+	return elem
+}
+
 //GetTimeline ...
 func (t *TweetManager) GetTimeline(user string) []domain.Tweet {
 	listaFollows := t.UserFollows[user]
@@ -115,7 +121,7 @@ func (t *TweetManager) GetTrendingTopic() []string {
 	listaRes := make([]string, 0)
 	//Devuelve un mapa con (clave,sig) = (palabra,cantRep)
 	for i := 0; i < len(t.Tweets); i++ {
-		listaPalabras := strings.Fields(t.Tweets[i].Text)
+		listaPalabras := strings.Fields(t.Tweets[i].GetText())
 		for j := 0; j < len(listaPalabras); j++ {
 			elem := listaTrending[listaPalabras[j]]
 			listaTrending[listaPalabras[j]] = elem + 1
@@ -180,10 +186,10 @@ func (t *TweetManager) GetUnreadedDirectMessages(user string) []*domain.DirectMe
 }
 
 //ReadDirectMessage ...
-func (t *TweetManager) ReadDirectMessage(msj *domain.DirectMessage) *domain.DirectMessage {
+func (t *TweetManager) ReadDirectMessage(msj int) *domain.DirectMessage {
 	var msj2 *domain.DirectMessage
 	for i := 0; i < len(t.DirectMessages); i++ {
-		if msj.ID == t.DirectMessages[i].ID {
+		if msj == t.DirectMessages[i].ID {
 			t.DirectMessages[i].Read = true
 			msj2 = t.DirectMessages[i]
 		}
@@ -192,11 +198,27 @@ func (t *TweetManager) ReadDirectMessage(msj *domain.DirectMessage) *domain.Dire
 }
 
 //Retweet ...
-func (t *TweetManager) Retweet(user string, twit *domain.Tweet) domain.Tweet {
+func (t *TweetManager) Retweet(user string, idTwit int) domain.Tweet {
 	twits := t.TweetsByUser[user]
-	twits = append(twits, twit)
+	twits = append(twits, t.GetTweetByID(idTwit))
 	t.TweetsByUser[user] = twits
 
-	return twit
+	return t.GetTweetByID(idTwit)
 
+}
+
+//AddToFavs ...
+func (t *TweetManager) AddToFavs(user string, idTwit int) domain.Tweet {
+	favs := t.FavsByUser[user]
+	favs = append(favs, t.GetTweetByID(idTwit))
+	t.FavsByUser[user] = favs
+
+	return t.GetTweetByID(idTwit)
+
+}
+
+//GetUserFavs ...
+func (t *TweetManager) GetUserFavs(user string) []domain.Tweet {
+	listaFavs := t.FavsByUser[user]
+	return listaFavs
 }

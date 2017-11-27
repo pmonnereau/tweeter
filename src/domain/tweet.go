@@ -8,8 +8,9 @@ import (
 type Tweet interface {
 	GetUser() string
 	GetText() string
+	GetDate() *time.Time
 	GetId() int
-	SetId() int
+	SetId(id int)
 	PrintableTweet() string
 }
 
@@ -24,7 +25,7 @@ type TweetText struct {
 //TweetQuote ...
 type TweetQuote struct {
 	TweetText
-	Quote string
+	Quote Tweet
 }
 
 //TweetImage ...
@@ -53,7 +54,7 @@ func NewTweetText(user string, text string) *TweetText {
 }
 
 //NewTweetQuote ...
-func NewTweetQuote(user string, text string, quote string) *TweetQuote {
+func NewTweetQuote(user string, text string, quote Tweet) *TweetQuote {
 	date := time.Now()
 	var ID int
 	tw := TweetQuote{
@@ -84,17 +85,29 @@ func NewTweetImage(user string, text string, url string) *TweetImage {
 	return &tw
 }
 
+func (t *TweetImage) String() string {
+	return t.PrintableTweet()
+}
+
+func (t *TweetText) String() string {
+	return t.PrintableTweet()
+}
+
+func (t *TweetQuote) String() string {
+	return t.PrintableTweet()
+}
+
 //PrintableTweet ...
 func (t *TweetImage) PrintableTweet() string {
 	var tweet string
-	tweet = "@" + t.User + ": " + t.Text + t.URL
+	tweet = "@" + t.User + ": " + t.Text + " " + t.URL
 	return tweet
 }
 
 //PrintableTweet ...
 func (t *TweetQuote) PrintableTweet() string {
 	var tweet string
-	tweet = "@" + t.User + ": " + t.Text + t.Quote
+	tweet = "@" + t.User + ": " + t.Text + " " + `"` + t.Quote.PrintableTweet() + `"`
 	return tweet
 }
 
@@ -105,8 +118,15 @@ func (t *TweetText) PrintableTweet() string {
 	return tweet
 }
 
-func (t *Tweet) String() string {
-	return t.PrintableTweet()
+//PrintableTweet ...
+func (t *DirectMessage) PrintableMessage() string {
+	var message string
+	message = t.FromUser + ": @" + t.ToUser + t.Text
+	return message
+}
+
+func (t *DirectMessage) String() string {
+	return t.PrintableMessage()
 }
 
 //NewDirectMessages ...
@@ -118,4 +138,64 @@ func NewDirectMessages(fromUser string, toUser string, text string) *DirectMessa
 		ID, fromUser, toUser, read, text,
 	}
 	return &dm
+}
+
+func (t *TweetText) GetId() int {
+	return t.ID
+}
+
+func (t *TweetImage) GetId() int {
+	return t.ID
+}
+
+func (t *TweetQuote) GetId() int {
+	return t.ID
+}
+
+func (t *TweetText) GetUser() string {
+	return t.User
+}
+
+func (t *TweetImage) GetUser() string {
+	return t.User
+}
+
+func (t *TweetQuote) GetUser() string {
+	return t.User
+}
+
+func (t *TweetText) GetText() string {
+	return t.Text
+}
+
+func (t *TweetImage) GetText() string {
+	return t.Text
+}
+
+func (t *TweetQuote) GetText() string {
+	return t.Text
+}
+
+func (t *TweetText) SetId(i int) {
+	t.ID = i
+}
+
+func (t *TweetImage) SetId(i int) {
+	t.ID = i
+}
+
+func (t *TweetQuote) SetId(i int) {
+	t.ID = i
+}
+
+func (t *TweetText) GetDate() *time.Time {
+	return t.Date
+}
+
+func (t *TweetImage) GetDate() *time.Time {
+	return t.Date
+}
+
+func (t *TweetQuote) GetDate() *time.Time {
+	return t.Date
 }

@@ -12,12 +12,12 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 	// Initialization
 	tweetManager := service.NewTweetManager()
 
-	var tweet *domain.Tweet
+	var tweet *domain.TweetText
 
 	user := "grupoesfera"
 	text := "This is my first tweet"
 
-	tweet = domain.NewTweet(user, text)
+	tweet = domain.NewTweetText(user, text)
 
 	// Operation
 	id, _ := tweetManager.PublishTweet(tweet)
@@ -33,12 +33,12 @@ func TestTweetWithoutUserIsNotPublished(t *testing.T) {
 	// Initialization
 	tweetManager := service.NewTweetManager()
 
-	var tweet *domain.Tweet
+	var tweet domain.Tweet
 
 	var user string
 	text := "This is my first tweet"
 
-	tweet = domain.NewTweet(user, text)
+	tweet = domain.NewTweetText(user, text)
 
 	// Operation
 	var err error
@@ -55,12 +55,12 @@ func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 	// Initialization
 	tweetManager := service.NewTweetManager()
 
-	var tweet *domain.Tweet
+	var tweet domain.Tweet
 
 	user := "grupoesfera"
 	var text string
 
-	tweet = domain.NewTweet(user, text)
+	tweet = domain.NewTweetText(user, text)
 
 	// Operation
 	var err error
@@ -82,14 +82,14 @@ func TestTweetWhichExceeding140CharactersIsNotPublished(t *testing.T) {
 	// Initialization
 	tweetManager := service.NewTweetManager()
 
-	var tweet *domain.Tweet
+	var tweet domain.Tweet
 
 	user := "grupoesfera"
 	text := `The Go project has grown considerably with over half a million users and community members 
 	all over the world. To date all community oriented activities have been organized by the community
 	with minimal involvement from the Go project. We greatly appreciate these efforts`
 
-	tweet = domain.NewTweet(user, text)
+	tweet = domain.NewTweetText(user, text)
 
 	// Operation
 	var err error
@@ -110,14 +110,14 @@ func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 	// Initialization
 	tweetManager := service.NewTweetManager()
 
-	var tweet, secondTweet *domain.Tweet
+	var tweet, secondTweet domain.Tweet
 
 	user := "grupoesfera"
 	text := "This is my first tweet"
 	secondText := "This is my second tweet"
 
-	tweet = domain.NewTweet(user, text)
-	secondTweet = domain.NewTweet(user, secondText)
+	tweet = domain.NewTweetText(user, text)
+	secondTweet = domain.NewTweetText(user, secondText)
 
 	// Operation
 	firstId, _ := tweetManager.PublishTweet(tweet)
@@ -150,13 +150,13 @@ func TestCanRetrieveTweetById(t *testing.T) {
 	// Initialization
 	tweetManager := service.NewTweetManager()
 
-	var tweet *domain.Tweet
+	var tweet domain.Tweet
 	var id int
 
 	user := "grupoesfera"
 	text := "This is my first tweet"
 
-	tweet = domain.NewTweet(user, text)
+	tweet = domain.NewTweetText(user, text)
 
 	// Operation
 	id, _ = tweetManager.PublishTweet(tweet)
@@ -172,16 +172,16 @@ func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
 	// Initialization
 	tweetManager := service.NewTweetManager()
 
-	var tweet, secondTweet, thirdTweet *domain.Tweet
+	var tweet, secondTweet, thirdTweet domain.Tweet
 
 	user := "grupoesfera"
 	anotherUser := "nick"
 	text := "This is my first tweet"
 	secondText := "This is my second tweet"
 
-	tweet = domain.NewTweet(user, text)
-	secondTweet = domain.NewTweet(user, secondText)
-	thirdTweet = domain.NewTweet(anotherUser, text)
+	tweet = domain.NewTweetText(user, text)
+	secondTweet = domain.NewTweetText(user, secondText)
+	thirdTweet = domain.NewTweetText(anotherUser, text)
 
 	tweetManager.PublishTweet(tweet)
 	tweetManager.PublishTweet(secondTweet)
@@ -202,16 +202,16 @@ func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
 	// Initialization
 	tweetManager := service.NewTweetManager()
 
-	var tweet, secondTweet, thirdTweet *domain.Tweet
+	var tweet, secondTweet, thirdTweet domain.Tweet
 
 	user := "grupoesfera"
 	anotherUser := "nick"
 	text := "This is my first tweet"
 	secondText := "This is my second tweet"
 
-	tweet = domain.NewTweet(user, text)
-	secondTweet = domain.NewTweet(user, secondText)
-	thirdTweet = domain.NewTweet(anotherUser, text)
+	tweet = domain.NewTweetText(user, text)
+	secondTweet = domain.NewTweetText(user, secondText)
+	thirdTweet = domain.NewTweetText(anotherUser, text)
 
 	firstId, _ := tweetManager.PublishTweet(tweet)
 	secondId, _ := tweetManager.PublishTweet(secondTweet)
@@ -240,19 +240,19 @@ func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
 
 }
 
-func isValidTweet(t *testing.T, tweet *domain.Tweet, id int, user, text string) bool {
+func isValidTweet(t *testing.T, tweet domain.Tweet, id int, user, text string) bool {
 
-	if tweet.ID != id {
-		t.Errorf("Expected id is %v but was %v", id, tweet.ID)
+	if tweet.GetId() != id {
+		t.Errorf("Expected id is %v but was %v", id, tweet.GetId())
 	}
 
-	if tweet.User != user && tweet.Text != text {
+	if tweet.GetUser() != user && tweet.GetText() != text {
 		t.Errorf("Expected tweet is %s: %s \nbut is %s: %s",
-			user, text, tweet.User, tweet.Text)
+			user, text, tweet.GetUser(), tweet.GetText())
 		return false
 	}
 
-	if tweet.Date == nil {
+	if tweet.GetDate() == nil {
 		t.Error("Expected date can't be nil")
 		return false
 	}
@@ -265,16 +265,16 @@ func TestTrendingTopics(t *testing.T) {
 	// Initialization
 	tweetManager := service.NewTweetManager()
 
-	var tweet, secondTweet, thirdTweet *domain.Tweet
+	var tweet, secondTweet, thirdTweet domain.Tweet
 
 	user := "rodri"
 	anotherUser := "pri"
 	text := "hola soy rodri"
 	secondText := "hola soy pro"
 
-	tweet = domain.NewTweet(user, text)
-	secondTweet = domain.NewTweet(user, secondText)
-	thirdTweet = domain.NewTweet(anotherUser, text)
+	tweet = domain.NewTweetText(user, text)
+	secondTweet = domain.NewTweetText(user, secondText)
+	thirdTweet = domain.NewTweetText(anotherUser, text)
 
 	tweetManager.PublishTweet(tweet)
 	tweetManager.PublishTweet(secondTweet)
@@ -370,9 +370,9 @@ func TestGetUnreadedMessagesByUser(t *testing.T) {
 		t.Error("No es el mensaje directo")
 	}
 
-	_ = tweetManager.ReadDirectMessage(firstMes)
-	_ = tweetManager.ReadDirectMessage(secondMes)
-	_ = tweetManager.ReadDirectMessage(thirdMes)
+	_ = tweetManager.ReadDirectMessage(firstMes.ID)
+	_ = tweetManager.ReadDirectMessage(secondMes.ID)
+	_ = tweetManager.ReadDirectMessage(thirdMes.ID)
 
 	dms = tweetManager.GetUnreadedDirectMessages("pri")
 	dms2 := tweetManager.GetUnreadedDirectMessages("rodri")
@@ -389,30 +389,30 @@ func TestReTwitear(t *testing.T) {
 	// Initialization
 	tweetManager := service.NewTweetManager()
 
-	var tweet, secondTweet, thirdTweet *domain.Tweet
+	var tweet, secondTweet, thirdTweet domain.Tweet
 
 	user := "rodri"
 	anotherUser := "pri"
 	text := "hola soy rodri"
 	secondText := "hola soy pro"
 
-	tweet = domain.NewTweet(user, text)
-	secondTweet = domain.NewTweet(user, secondText)
-	thirdTweet = domain.NewTweet(anotherUser, text)
+	tweet = domain.NewTweetText(user, text)
+	secondTweet = domain.NewTweetText(user, secondText)
+	thirdTweet = domain.NewTweetText(anotherUser, text)
 
 	tweetManager.PublishTweet(tweet)
 	tweetManager.PublishTweet(secondTweet)
 	tweetManager.PublishTweet(thirdTweet)
 
-	tweetManager.Retweet("pri", secondTweet)
+	tweetManager.Retweet("pri", secondTweet.GetId())
 
 	tweetsByUser := tweetManager.GetTweetsByUser("pri")
 
-	println(tweetsByUser[len(tweetsByUser)-1].ID)
-	println(tweetsByUser[len(tweetsByUser)-1].Text)
-	println(secondTweet.ID)
-	println(secondTweet.Text)
-	if tweetsByUser[len(tweetsByUser)-1].ID != secondTweet.ID {
+	println(tweetsByUser[len(tweetsByUser)-1].GetId())
+	println(tweetsByUser[len(tweetsByUser)-1].GetText())
+	println(secondTweet.GetId())
+	println(secondTweet.GetText())
+	if tweetsByUser[len(tweetsByUser)-1].GetId() != secondTweet.GetId() {
 		t.Error("Hay mensajes sin leer y no deberia")
 	}
 

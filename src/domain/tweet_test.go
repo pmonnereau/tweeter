@@ -8,7 +8,8 @@ import (
 
 func TestCanGetAPrintableTweet(t *testing.T) {
 	//Inicialization
-	tweet := domain.NewTweet("grupoesfera", "This is my tweet!")
+	var tweet domain.Tweet
+	tweet = domain.NewTweetText("grupoesfera", "This is my tweet!")
 	//Operation
 	text := tweet.PrintableTweet()
 	//Validation
@@ -22,7 +23,8 @@ func TestCanGetAPrintableTweet(t *testing.T) {
 func TestImageTweetPrintsUserTextAndImageURL(t *testing.T) {
 
 	// Initialization
-	tweet := domain.NewImageTweet("grupoesfera", "This is my image", "http://www.grupoesfera.com.ar/common/img/grupoesfera.png")
+	var tweet domain.Tweet
+	tweet = domain.NewTweetImage("grupoesfera", "This is my image", "http://www.grupoesfera.com.ar/common/img/grupoesfera.png")
 
 	// Operation
 	text := tweet.PrintableTweet()
@@ -38,8 +40,9 @@ func TestImageTweetPrintsUserTextAndImageURL(t *testing.T) {
 func TestQuoteTweetPrintsUserTextAndQuotedTweet(t *testing.T) {
 
 	// Initialization
-	quotedTweet := domain.NewTextTweet("grupoesfera", "This is my tweet")
-	tweet := domain.NewQuoteTweet("nick", "Awesome", quotedTweet)
+	var tweet, quotedTweet domain.Tweet
+	quotedTweet = domain.NewTweetText("grupoesfera", "This is my tweet")
+	tweet = domain.NewTweetQuote("nick", "Awesome", quotedTweet)
 
 	// Operation
 	text := tweet.PrintableTweet()
@@ -55,7 +58,7 @@ func TestQuoteTweetPrintsUserTextAndQuotedTweet(t *testing.T) {
 func TestCanGetAStringFromATweet(t *testing.T) {
 
 	// Initialization
-	tweet := domain.NewTextTweet("grupoesfera", "This is my tweet")
+	tweet := domain.NewTweetText("grupoesfera", "This is my tweet")
 
 	// Operation
 	text := tweet.String()
