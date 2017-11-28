@@ -14,23 +14,24 @@ type TweetManager struct {
 	DirectMessages []*domain.DirectMessage
 	UserFollows    map[string][]string
 	FavsByUser     map[string][]domain.Tweet
+	ChannelTW      ChannelTweetWriter
 }
 
 //NewTweetManager ...
-func NewTweetManager() *TweetManager {
+func NewTweetManager(ChannelTW ChannelTweetWriter) *TweetManager {
 	Tweets := make([]domain.Tweet, 0)
 	TweetsByUser := make(map[string][]domain.Tweet)
 	FavsByUser := make(map[string][]domain.Tweet)
 	UserFollows := make(map[string][]string)
 	DirectMessages := make([]*domain.DirectMessage, 0)
 	tweetManager := TweetManager{
-		TweetsByUser, Tweets, DirectMessages, UserFollows, FavsByUser,
+		TweetsByUser, Tweets, DirectMessages, UserFollows, FavsByUser, ChannelTW,
 	}
 	return &tweetManager
 }
 
 //PublishTweet ...
-func (t *TweetManager) PublishTweet(tw domain.Tweet) (int, error) {
+func (t *TweetManager) PublishTweet(tw domain.Tweet, quit chan bool) (int, error) {
 	var err error
 	if tw.GetUser() == "" && tw.GetText() == "" {
 		err = fmt.Errorf("text and user are required")
@@ -41,6 +42,10 @@ func (t *TweetManager) PublishTweet(tw domain.Tweet) (int, error) {
 	} else if len(tw.GetText()) > 140 {
 		err = fmt.Errorf("text exceeds 140 characters")
 	} else {
+		tweetsToWrite := make(chan domain.Tweet)
+		go t.ChannelTW.WriteTweet(tweetsToWrite, quit)
+		tweetsToWrite <- tw
+		close(tweetsToWrite)
 		tw.SetId(len(t.Tweets))
 		t.Tweets = append(t.Tweets, tw)
 		elem, _ := t.TweetsByUser[tw.GetUser()]
