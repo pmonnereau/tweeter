@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/tweeter/src/domain"
 	"github.com/tweeter/src/service"
 )
 
@@ -25,7 +26,7 @@ func (server *GinServer) StartGinServer() {
 	router := gin.Default()
 
 	router.GET("/listTweets", server.listTweets)
-	router.GET("/listTweets/:user", server.listTweets)
+	router.GET("/listTweets/:user", server.getTweetsByUser)
 	router.POST("publishTweet", server.publishTweet)
 
 	go router.Run()
@@ -49,7 +50,7 @@ func (server *GinServer) publishTweet(c *gin.Context) {
 	var tweetdata GinTweet
 	c.Bind(&tweetdata)
 
-	tweetToPublish := domain.NewTextTweet(tweetdata.User, tweetdata.Text)
+	tweetToPublish := domain.NewTweetText(tweetdata.User, tweetdata.Text)
 
 	id, err := server.tweetManager.PublishTweet(tweetToPublish, quit)
 

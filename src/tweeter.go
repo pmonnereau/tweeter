@@ -5,12 +5,20 @@ import (
 
 	"github.com/abiosoft/ishell"
 	"github.com/tweeter/src/domain"
+	"github.com/tweeter/src/domain/rest"
 	"github.com/tweeter/src/service"
 )
 
 func main() {
+	quit := make(chan bool)
+	fileTweetWriter := service.NewFileTweetWriter()
+	tweetWriter := service.NewChannelTweetWriter(fileTweetWriter)
+	t := service.NewTweetManager(tweetWriter)
+	ginServer := rest.NewGinServer(t)
+	ginServer.StartGinServer()
+
 	shell := ishell.New()
-	t := service.NewTweetManager()
+	//t := service.NewTweetManager()
 	shell.SetPrompt("Tweeter >> ")
 	shell.Print("Type help to know commands \n")
 	shell.AddCmd(&ishell.Cmd{
@@ -25,7 +33,7 @@ func main() {
 			Tweet := domain.NewTweetText(user, txt)
 			var err error
 			var idNew int
-			idNew, err = t.PublishTweet(Tweet)
+			idNew, err = t.PublishTweet(Tweet, quit)
 			if err != nil && err.Error() == "user is required" {
 				c.Print("User is required, try again")
 			} else if err != nil && err.Error() == "text is required" {
@@ -53,10 +61,11 @@ func main() {
 			txt := c.ReadLine()
 			c.Print("Write your quote: ")
 			quote := c.ReadLine()
-			Tweet := domain.NewTweetQuote(user, txt, quote)
+			//Tweet := domain.NewTweetQuote(user, txt, quote)
+			Tweet := domain.NewTweetImage(user, txt, quote)
 			var err error
 			var idNew int
-			idNew, err = t.PublishTweet(Tweet)
+			idNew, err = t.PublishTweet(Tweet, quit)
 			if err != nil && err.Error() == "user is required" {
 				c.Print("User is required, try again")
 			} else if err != nil && err.Error() == "text is required" {
@@ -87,7 +96,7 @@ func main() {
 			Tweet := domain.NewTweetImage(user, txt, url)
 			var err error
 			var idNew int
-			idNew, err = t.PublishTweet(Tweet)
+			idNew, err = t.PublishTweet(Tweet, quit)
 			if err != nil && err.Error() == "user is required" {
 				c.Print("User is required, try again")
 			} else if err != nil && err.Error() == "text is required" {
